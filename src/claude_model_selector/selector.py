@@ -262,15 +262,15 @@ class ClaudeModelSelector:
 
         # Check complexity keywords
         for model_type, config in self.complexity_keywords.items():
-            for keyword in config["keywords"]:
+            for keyword in config["keywords"]:  # type: ignore
                 if keyword in task_lower:
-                    score += config["weight"] / len(config["keywords"])
+                    score += config["weight"] / len(config["keywords"])  # type: ignore
 
         # Check task patterns
         for pattern_type, config in self.task_patterns.items():
-            for pattern in config["patterns"]:
+            for pattern in config["patterns"]:  # type: ignore
                 if re.search(pattern, task_lower):
-                    score += config["weight"] / len(config["patterns"])
+                    score += config["weight"] / len(config["patterns"])  # type: ignore
 
         # Length factor (longer descriptions often mean more complexity)
         word_count = len(task.split())
@@ -385,8 +385,12 @@ class ClaudeModelSelector:
         input_tokens = int(tokens * 0.4)
         output_tokens = int(tokens * 0.6)
 
-        input_cost = (input_tokens / 1_000_000) * model_info["cost_per_mtok_input"]
-        output_cost = (output_tokens / 1_000_000) * model_info["cost_per_mtok_output"]
+        input_cost = (input_tokens / 1_000_000) * model_info[  # type: ignore
+            "cost_per_mtok_input"
+        ]
+        output_cost = (output_tokens / 1_000_000) * model_info[  # type: ignore
+            "cost_per_mtok_output"
+        ]
 
         return input_cost + output_cost
 
@@ -435,7 +439,9 @@ class ClaudeModelSelector:
 
         for model_enum in ClaudeModel:
             model_info = model_enum.value
-            cost = self._estimate_cost(model_info["name"], estimated_tokens)
+            cost = self._estimate_cost(
+                model_info["name"], estimated_tokens  # type: ignore
+            )
 
             comparisons.append(
                 {

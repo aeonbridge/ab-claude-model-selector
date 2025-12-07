@@ -3,7 +3,9 @@
     "allow": [
       "Bash(python3:*)",
       "Bash(black:*)",
-      "Bash(flake8:*)"
+      "Bash(flake8:*)",
+      "Bash(mypy:*)",
+      "Bash(pytest:*)"
     ],
     "deny": [],
     "ask": []
