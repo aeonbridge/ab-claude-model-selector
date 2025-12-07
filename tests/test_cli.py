@@ -3,12 +3,10 @@ Tests for CLI interface
 """
 
 import pytest
-import sys
 import json
 import tempfile
 from pathlib import Path
-from io import StringIO
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 
 class TestCLIAnalyze:
@@ -145,7 +143,7 @@ class TestCLIBatch:
         from claude_model_selector.cli import batch_command
 
         # Create temporary task file
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
             f.write("List files\n")
             f.write("Analyze code\n")
             f.write("Design architecture\n")
@@ -170,7 +168,7 @@ class TestCLIBatch:
         """Test batch with verbose output"""
         from claude_model_selector.cli import batch_command
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
             f.write("Task 1\n")
             f.write("Task 2\n")
             task_file = Path(f.name)
@@ -193,7 +191,7 @@ class TestCLIBatch:
         """Test batch shows summary"""
         from claude_model_selector.cli import batch_command
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
             f.write("Simple task\n")
             f.write("Complex planning task\n")
             task_file = Path(f.name)
@@ -274,7 +272,7 @@ class TestCLIHelpers:
             reasoning="Test reasoning",
             confidence=0.85,
             estimated_tokens=1000,
-            estimated_cost=0.01
+            estimated_cost=0.01,
         )
 
         print_analysis(analysis, verbose=False)
@@ -295,7 +293,7 @@ class TestCLIHelpers:
             reasoning="Test reasoning",
             confidence=0.85,
             estimated_tokens=1000,
-            estimated_cost=0.01
+            estimated_cost=0.01,
         )
 
         print_analysis(analysis, verbose=True)
@@ -338,7 +336,7 @@ class TestCLIIntegration:
         """Test complete batch workflow"""
         from claude_model_selector.cli import batch_command
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
             f.write("Task 1\nTask 2\nTask 3\n")
             task_file = Path(f.name)
 
@@ -392,7 +390,7 @@ class TestCLIOutputFiles:
         """Test saving analysis to file"""
         from claude_model_selector.cli import analyze_command
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as f:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as f:
             output_file = Path(f.name)
 
         try:
@@ -416,11 +414,11 @@ class TestCLIOutputFiles:
         """Test saving batch results to file"""
         from claude_model_selector.cli import batch_command
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
             f.write("Task 1\nTask 2\n")
             task_file = Path(f.name)
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as f:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as f:
             output_file = Path(f.name)
 
         try:

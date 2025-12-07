@@ -8,12 +8,11 @@ import argparse
 import sys
 import json
 from pathlib import Path
-from typing import Optional
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from claude_model_selector import ClaudeModelSelector, TaskAnalysis
+from claude_model_selector import ClaudeModelSelector, TaskAnalysis  # noqa: E402
 
 
 def print_analysis(analysis: TaskAnalysis, verbose: bool = False):
@@ -57,13 +56,13 @@ def analyze_command(args):
     # JSON output if requested
     if args.json:
         output = {
-            'task': task,
-            'model': analysis.recommended_model,
-            'complexity_score': analysis.complexity_score,
-            'confidence': analysis.confidence,
-            'estimated_cost': analysis.estimated_cost,
-            'reasoning': analysis.reasoning,
-            'estimated_tokens': analysis.estimated_tokens
+            "task": task,
+            "model": analysis.recommended_model,
+            "complexity_score": analysis.complexity_score,
+            "confidence": analysis.confidence,
+            "estimated_cost": analysis.estimated_cost,
+            "reasoning": analysis.reasoning,
+            "estimated_tokens": analysis.estimated_tokens,
         }
         print("\nJSON Output:")
         print(json.dumps(output, indent=2))
@@ -71,18 +70,18 @@ def analyze_command(args):
     # Save to file if requested
     if args.output:
         output_data = {
-            'task': task,
-            'context': context,
-            'analysis': {
-                'model': analysis.recommended_model,
-                'complexity_score': analysis.complexity_score,
-                'confidence': analysis.confidence,
-                'estimated_cost': analysis.estimated_cost,
-                'reasoning': analysis.reasoning,
-                'estimated_tokens': analysis.estimated_tokens
-            }
+            "task": task,
+            "context": context,
+            "analysis": {
+                "model": analysis.recommended_model,
+                "complexity_score": analysis.complexity_score,
+                "confidence": analysis.confidence,
+                "estimated_cost": analysis.estimated_cost,
+                "reasoning": analysis.reasoning,
+                "estimated_tokens": analysis.estimated_tokens,
+            },
         }
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             json.dump(output_data, f, indent=2)
         print(f"\nAnalysis saved to: {args.output}")
 
@@ -97,7 +96,7 @@ def compare_command(args):
     comparisons = selector.compare_models(task, tokens)
 
     print("\n" + "=" * 80)
-    print(f"MODEL COMPARISON FOR TASK")
+    print("MODEL COMPARISON FOR TASK")
     print("=" * 80)
     print(f"\nTask: {task}")
     print(f"Estimated Tokens: {tokens:,}")
@@ -107,13 +106,18 @@ def compare_command(args):
     print("-" * 80)
 
     for comp in comparisons:
-        use_cases = ', '.join(comp['use_cases'][:3])
-        print(f"{comp['model'].upper():<10} {comp['speed']:<12} ${comp['estimated_cost']:<14.6f} {use_cases}")
+        use_cases = ", ".join(comp["use_cases"][:3])
+        model = comp["model"].upper()
+        speed = comp["speed"]
+        cost = comp["estimated_cost"]
+        print(f"{model:<10} {speed:<12} ${cost:<14.6f} {use_cases}")
 
     # Show recommendation
     analysis = selector.analyze_task(task)
-    print(f"\n  Recommended: {analysis.recommended_model.upper()} "
-          f"(complexity: {analysis.complexity_score:.1f}/100)")
+    print(
+        f"\n  Recommended: {analysis.recommended_model.upper()} "
+        f"(complexity: {analysis.complexity_score:.1f}/100)"
+    )
     print("=" * 80)
 
 
@@ -134,19 +138,23 @@ def batch_command(args):
 
     for i, task in enumerate(tasks, 1):
         analysis = selector.analyze_task(task)
-        results.append({
-            'task': task,
-            'model': analysis.recommended_model,
-            'complexity': analysis.complexity_score,
-            'cost': analysis.estimated_cost
-        })
+        results.append(
+            {
+                "task": task,
+                "model": analysis.recommended_model,
+                "complexity": analysis.complexity_score,
+                "cost": analysis.estimated_cost,
+            }
+        )
         total_cost += analysis.estimated_cost
 
         if args.verbose:
             print(f"\n{i}. {task}")
-            print(f"   → {analysis.recommended_model.upper()} "
-                  f"(complexity: {analysis.complexity_score:.1f}, "
-                  f"cost: ${analysis.estimated_cost:.6f})")
+            print(
+                f"   → {analysis.recommended_model.upper()} "
+                f"(complexity: {analysis.complexity_score:.1f}, "
+                f"cost: ${analysis.estimated_cost:.6f})"
+            )
 
     # Summary
     print("\n" + "=" * 80)
@@ -155,7 +163,7 @@ def batch_command(args):
 
     model_counts = {}
     for result in results:
-        model = result['model']
+        model = result["model"]
         model_counts[model] = model_counts.get(model, 0) + 1
 
     print(f"\nTotal Tasks: {len(tasks)}")
@@ -168,12 +176,12 @@ def batch_command(args):
     # Save results if requested
     if args.output:
         output_data = {
-            'total_tasks': len(tasks),
-            'total_cost': total_cost,
-            'model_distribution': model_counts,
-            'tasks': results
+            "total_tasks": len(tasks),
+            "total_cost": total_cost,
+            "model_distribution": model_counts,
+            "tasks": results,
         }
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             json.dump(output_data, f, indent=2)
         print(f"\nResults saved to: {args.output}")
 
@@ -199,7 +207,7 @@ def info_command(args):
         print("CLAUDE MODELS OVERVIEW")
         print("=" * 80)
 
-        for model_name in ['haiku', 'sonnet', 'opus']:
+        for model_name in ["haiku", "sonnet", "opus"]:
             info = selector.get_model_info(model_name)
             print(f"\n{model_name.upper()}:")
             print(f"  Speed:        {info['speed']}")
@@ -243,34 +251,46 @@ Cost (per million tokens):
   HAIKU:  Input $0.80  | Output $4.00
   SONNET: Input $3.00  | Output $15.00
   OPUS:   Input $15.00 | Output $75.00
-        """
+        """,
     )
 
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Analyze command
-    analyze_parser = subparsers.add_parser('analyze', help='Analyze a task and get model recommendation')
-    analyze_parser.add_argument('task', nargs='?', help='Task description')
-    analyze_parser.add_argument('--context', help='Additional context')
-    analyze_parser.add_argument('--context-file', help='File containing context')
-    analyze_parser.add_argument('--json', action='store_true', help='Output as JSON')
-    analyze_parser.add_argument('--output', '-o', help='Save analysis to file')
-    analyze_parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
+    analyze_parser = subparsers.add_parser(
+        "analyze", help="Analyze a task and get model recommendation"
+    )
+    analyze_parser.add_argument("task", nargs="?", help="Task description")
+    analyze_parser.add_argument("--context", help="Additional context")
+    analyze_parser.add_argument("--context-file", help="File containing context")
+    analyze_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    analyze_parser.add_argument("--output", "-o", help="Save analysis to file")
+    analyze_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Verbose output"
+    )
 
     # Compare command
-    compare_parser = subparsers.add_parser('compare', help='Compare models for a task')
-    compare_parser.add_argument('task', nargs='?', help='Task description')
-    compare_parser.add_argument('--tokens', type=int, default=10000, help='Estimated tokens (default: 10000)')
+    compare_parser = subparsers.add_parser("compare", help="Compare models for a task")
+    compare_parser.add_argument("task", nargs="?", help="Task description")
+    compare_parser.add_argument(
+        "--tokens", type=int, default=10000, help="Estimated tokens (default: 10000)"
+    )
 
     # Batch command
-    batch_parser = subparsers.add_parser('batch', help='Analyze multiple tasks from file')
-    batch_parser.add_argument('file', help='File with task list (one per line)')
-    batch_parser.add_argument('--output', '-o', help='Save results to file')
-    batch_parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
+    batch_parser = subparsers.add_parser(
+        "batch", help="Analyze multiple tasks from file"
+    )
+    batch_parser.add_argument("file", help="File with task list (one per line)")
+    batch_parser.add_argument("--output", "-o", help="Save results to file")
+    batch_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Verbose output"
+    )
 
     # Info command
-    info_parser = subparsers.add_parser('info', help='Show model information')
-    info_parser.add_argument('--model', choices=['haiku', 'sonnet', 'opus'], help='Specific model')
+    info_parser = subparsers.add_parser("info", help="Show model information")
+    info_parser.add_argument(
+        "--model", choices=["haiku", "sonnet", "opus"], help="Specific model"
+    )
 
     args = parser.parse_args()
 
@@ -279,13 +299,13 @@ Cost (per million tokens):
         return
 
     # Execute command
-    if args.command == 'analyze':
+    if args.command == "analyze":
         analyze_command(args)
-    elif args.command == 'compare':
+    elif args.command == "compare":
         compare_command(args)
-    elif args.command == 'batch':
+    elif args.command == "batch":
         batch_command(args)
-    elif args.command == 'info':
+    elif args.command == "info":
         info_command(args)
 
 

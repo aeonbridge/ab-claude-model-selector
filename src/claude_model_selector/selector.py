@@ -5,7 +5,7 @@ Intelligently selects the most cost-effective Claude model for each task
 
 import re
 import json
-from typing import Dict, Tuple, Optional, List
+from typing import Dict, Optional, List
 from dataclasses import dataclass
 from pathlib import Path
 from enum import Enum
@@ -13,32 +13,34 @@ from enum import Enum
 
 class ClaudeModel(Enum):
     """Available Claude models with pricing"""
+
     HAIKU = {
         "name": "haiku",
         "cost_per_mtok_input": 0.80,  # $0.80 per million input tokens
         "cost_per_mtok_output": 4.00,  # $4.00 per million output tokens
         "speed": "fastest",
-        "use_cases": ["simple", "quick", "straightforward"]
+        "use_cases": ["simple", "quick", "straightforward"],
     }
     SONNET = {
         "name": "sonnet",
         "cost_per_mtok_input": 3.00,  # $3.00 per million input tokens
         "cost_per_mtok_output": 15.00,  # $15.00 per million output tokens
         "speed": "balanced",
-        "use_cases": ["reliable", "common", "standard"]
+        "use_cases": ["reliable", "common", "standard"],
     }
     OPUS = {
         "name": "opus",
         "cost_per_mtok_input": 15.00,  # $15.00 per million input tokens
         "cost_per_mtok_output": 75.00,  # $75.00 per million output tokens
         "speed": "slowest",
-        "use_cases": ["complex", "planning", "strategic", "critical"]
+        "use_cases": ["complex", "planning", "strategic", "critical"],
     }
 
 
 @dataclass
 class TaskAnalysis:
     """Analysis results for a task"""
+
     complexity_score: float  # 0-100
     recommended_model: str  # "haiku", "sonnet", or "opus"
     reasoning: str
@@ -68,74 +70,127 @@ class ClaudeModelSelector:
 
         # Complexity indicators
         self.complexity_keywords = {
-            'haiku': {
-                'keywords': [
-                    'simple', 'quick', 'basic', 'straightforward', 'easy',
-                    'list', 'summarize', 'extract', 'format', 'convert',
-                    'read', 'check', 'verify', 'validate', 'count'
+            "haiku": {
+                "keywords": [
+                    "simple",
+                    "quick",
+                    "basic",
+                    "straightforward",
+                    "easy",
+                    "list",
+                    "summarize",
+                    "extract",
+                    "format",
+                    "convert",
+                    "read",
+                    "check",
+                    "verify",
+                    "validate",
+                    "count",
                 ],
-                'weight': -30  # Reduces complexity score
+                "weight": -30,  # Reduces complexity score
             },
-            'sonnet': {
-                'keywords': [
-                    'analyze', 'review', 'implement', 'create', 'develop',
-                    'write', 'generate', 'build', 'process', 'handle',
-                    'parse', 'transform', 'optimize', 'refactor', 'test'
+            "sonnet": {
+                "keywords": [
+                    "analyze",
+                    "review",
+                    "implement",
+                    "create",
+                    "develop",
+                    "write",
+                    "generate",
+                    "build",
+                    "process",
+                    "handle",
+                    "parse",
+                    "transform",
+                    "optimize",
+                    "refactor",
+                    "test",
                 ],
-                'weight': 5  # Slight increase for standard tasks
+                "weight": 5,  # Slight increase for standard tasks
             },
-            'opus': {
-                'keywords': [
-                    'plan', 'design', 'architect', 'strategy', 'complex',
-                    'critical', 'research', 'investigate', 'evaluate',
-                    'comprehensive', 'multi-step', 'advanced', 'deep dive',
-                    'trade-off', 'decision', 'compare', 'assess', 'scalable',
-                    'microservice'
+            "opus": {
+                "keywords": [
+                    "plan",
+                    "design",
+                    "architect",
+                    "strategy",
+                    "complex",
+                    "critical",
+                    "research",
+                    "investigate",
+                    "evaluate",
+                    "comprehensive",
+                    "multi-step",
+                    "advanced",
+                    "deep dive",
+                    "trade-off",
+                    "decision",
+                    "compare",
+                    "assess",
+                    "scalable",
+                    "microservice",
                 ],
-                'weight': 60  # Increases complexity score
-            }
+                "weight": 60,  # Increases complexity score
+            },
         }
 
         # Task type patterns
         self.task_patterns = {
-            'planning': {
-                'patterns': [
-                    r'\bplan\b', r'\bdesign\b', r'\barchitect', r'\bstrateg',
-                    r'\broadmap\b', r'\bapproach\b', r'\bmethodology\b'
+            "planning": {
+                "patterns": [
+                    r"\bplan\b",
+                    r"\bdesign\b",
+                    r"\barchitect",
+                    r"\bstrateg",
+                    r"\broadmap\b",
+                    r"\bapproach\b",
+                    r"\bmethodology\b",
                 ],
-                'weight': 105
+                "weight": 105,
             },
-            'coding_complex': {
-                'patterns': [
-                    r'\bmulti[- ]step\b', r'\bcomplex\s+\w+\s+system\b',
-                    r'\brefactor\s+entire\b', r'\bredesign\b',
-                    r'\bmigrat(e|ion)\b', r'\bscalability\b'
+            "coding_complex": {
+                "patterns": [
+                    r"\bmulti[- ]step\b",
+                    r"\bcomplex\s+\w+\s+system\b",
+                    r"\brefactor\s+entire\b",
+                    r"\bredesign\b",
+                    r"\bmigrat(e|ion)\b",
+                    r"\bscalability\b",
                 ],
-                'weight': 45
+                "weight": 45,
             },
-            'research': {
-                'patterns': [
-                    r'\bresearch\b', r'\binvestigat\b', r'\banalyz\b.*\bdeep',
-                    r'\bcomprehensive\b', r'\bexplor\b.*\boption'
+            "research": {
+                "patterns": [
+                    r"\bresearch\b",
+                    r"\binvestigat\b",
+                    r"\banalyz\b.*\bdeep",
+                    r"\bcomprehensive\b",
+                    r"\bexplor\b.*\boption",
                 ],
-                'weight': 50
+                "weight": 50,
             },
-            'decision_making': {
-                'patterns': [
-                    r'\btrade[- ]off\b', r'\bcompare\s+\w+\s+approach',
-                    r'\bevaluate\s+option', r'\bdecid\b.*\bbest\b',
-                    r'\brecommend\b.*\bstrategy\b'
+            "decision_making": {
+                "patterns": [
+                    r"\btrade[- ]off\b",
+                    r"\bcompare\s+\w+\s+approach",
+                    r"\bevaluate\s+option",
+                    r"\bdecid\b.*\bbest\b",
+                    r"\brecommend\b.*\bstrategy\b",
                 ],
-                'weight': 45
+                "weight": 45,
             },
-            'simple_task': {
-                'patterns': [
-                    r'\blist\s+\w+\b', r'\bcount\s+\w+\b',
-                    r'\bextract\s+\w+\b', r'\bformat\s+\w+\b',
-                    r'\bconvert\s+\w+\s+to\s+\w+\b'
+            "simple_task": {
+                "patterns": [
+                    r"\blist\s+\w+\b",
+                    r"\bcount\s+\w+\b",
+                    r"\bextract\s+\w+\b",
+                    r"\bformat\s+\w+\b",
+                    r"\bconvert\s+\w+\s+to\s+\w+\b",
                 ],
-                'weight': -30
-            }
+                "weight": -30,
+            },
         }
 
     def _load_config(self, config_path: Optional[Path]) -> Dict:
@@ -144,19 +199,21 @@ class ClaudeModelSelector:
             with open(config_path) as f:
                 config = json.load(f)
                 # Handle nested thresholds structure
-                if 'thresholds' in config:
-                    thresholds = config['thresholds']
-                    config['haiku_threshold'] = thresholds.get('haiku_max', 30)
-                    config['sonnet_threshold'] = thresholds.get('sonnet_max', 70)
+                if "thresholds" in config:
+                    thresholds = config["thresholds"]
+                    config["haiku_threshold"] = thresholds.get("haiku_max", 30)
+                    config["sonnet_threshold"] = thresholds.get("sonnet_max", 70)
                 return config
         return {
-            'haiku_threshold': 30,
-            'sonnet_threshold': 70,
-            'default_model': 'sonnet',
-            'cost_optimization': True
+            "haiku_threshold": 30,
+            "sonnet_threshold": 70,
+            "default_model": "sonnet",
+            "cost_optimization": True,
         }
 
-    def analyze_task(self, task_description: str, context: Optional[str] = None) -> TaskAnalysis:
+    def analyze_task(
+        self, task_description: str, context: Optional[str] = None
+    ) -> TaskAnalysis:
         """
         Analyze a task and recommend the best model
 
@@ -174,7 +231,9 @@ class ClaudeModelSelector:
         model_name = self._select_model(complexity_score)
 
         # Generate reasoning
-        reasoning = self._generate_reasoning(task_description, complexity_score, model_name)
+        reasoning = self._generate_reasoning(
+            task_description, complexity_score, model_name
+        )
 
         # Estimate tokens and cost
         estimated_tokens = self._estimate_tokens(task_description, context)
@@ -189,7 +248,7 @@ class ClaudeModelSelector:
             reasoning=reasoning,
             confidence=confidence,
             estimated_tokens=estimated_tokens,
-            estimated_cost=estimated_cost
+            estimated_cost=estimated_cost,
         )
 
     def _calculate_complexity(self, task: str, context: Optional[str] = None) -> float:
@@ -203,15 +262,15 @@ class ClaudeModelSelector:
 
         # Check complexity keywords
         for model_type, config in self.complexity_keywords.items():
-            for keyword in config['keywords']:
+            for keyword in config["keywords"]:
                 if keyword in task_lower:
-                    score += config['weight'] / len(config['keywords'])
+                    score += config["weight"] / len(config["keywords"])
 
         # Check task patterns
         for pattern_type, config in self.task_patterns.items():
-            for pattern in config['patterns']:
+            for pattern in config["patterns"]:
                 if re.search(pattern, task_lower):
-                    score += config['weight'] / len(config['patterns'])
+                    score += config["weight"] / len(config["patterns"])
 
         # Length factor (longer descriptions often mean more complexity)
         word_count = len(task.split())
@@ -229,16 +288,19 @@ class ClaudeModelSelector:
             score += min(len(context.split()) / 20, 15)
 
         # Question marks might indicate uncertainty/complexity
-        question_count = task.count('?')
+        question_count = task.count("?")
         if question_count > 2:
             score += question_count * 5
 
         # Multiple conditions or steps
-        if any(word in task_lower for word in ['and then', 'after that', 'also', 'additionally']):
+        if any(
+            word in task_lower
+            for word in ["and then", "after that", "also", "additionally"]
+        ):
             score += 10
 
         # Negative indicators (simple tasks)
-        if any(word in task_lower for word in ['just', 'simply', 'only', 'quick']):
+        if any(word in task_lower for word in ["just", "simply", "only", "quick"]):
             score -= 15
 
         # Clamp to 0-100
@@ -246,15 +308,15 @@ class ClaudeModelSelector:
 
     def _select_model(self, complexity_score: float) -> str:
         """Select model based on complexity score"""
-        haiku_threshold = self.config.get('haiku_threshold', 30)
-        sonnet_threshold = self.config.get('sonnet_threshold', 70)
+        haiku_threshold = self.config.get("haiku_threshold", 30)
+        sonnet_threshold = self.config.get("sonnet_threshold", 70)
 
         if complexity_score <= haiku_threshold:
-            return 'haiku'
+            return "haiku"
         elif complexity_score <= sonnet_threshold:
-            return 'sonnet'
+            return "sonnet"
         else:
-            return 'opus'
+            return "opus"
 
     def _generate_reasoning(self, task: str, score: float, model: str) -> str:
         """Generate explanation for model selection"""
@@ -271,18 +333,18 @@ class ClaudeModelSelector:
             reasons.append("Task is complex and requires advanced reasoning")
 
         # Model-specific reasoning
-        if model == 'haiku':
+        if model == "haiku":
             reasons.append("Haiku is fastest and most cost-effective for this task")
-        elif model == 'sonnet':
+        elif model == "sonnet":
             reasons.append("Sonnet provides optimal balance of quality and cost")
         else:
             reasons.append("Opus recommended for critical thinking and planning")
 
         # Keyword-based reasoning
         task_lower = task.lower()
-        if 'plan' in task_lower or 'design' in task_lower:
+        if "plan" in task_lower or "design" in task_lower:
             reasons.append("Planning/design tasks benefit from Opus capabilities")
-        if 'quick' in task_lower or 'simple' in task_lower:
+        if "quick" in task_lower or "simple" in task_lower:
             reasons.append("Quick/simple task suited for faster models")
 
         return "; ".join(reasons)
@@ -323,8 +385,8 @@ class ClaudeModelSelector:
         input_tokens = int(tokens * 0.4)
         output_tokens = int(tokens * 0.6)
 
-        input_cost = (input_tokens / 1_000_000) * model_info['cost_per_mtok_input']
-        output_cost = (output_tokens / 1_000_000) * model_info['cost_per_mtok_output']
+        input_cost = (input_tokens / 1_000_000) * model_info["cost_per_mtok_input"]
+        output_cost = (output_tokens / 1_000_000) * model_info["cost_per_mtok_output"]
 
         return input_cost + output_cost
 
@@ -344,7 +406,7 @@ class ClaudeModelSelector:
 
         # Higher confidence for clear indicators
         task_lower = task.lower()
-        clear_indicators = ['plan', 'design', 'simple', 'quick', 'complex', 'critical']
+        clear_indicators = ["plan", "design", "simple", "quick", "complex", "critical"]
         if any(word in task_lower for word in clear_indicators):
             confidence += 0.1
 
@@ -373,16 +435,18 @@ class ClaudeModelSelector:
 
         for model_enum in ClaudeModel:
             model_info = model_enum.value
-            cost = self._estimate_cost(model_info['name'], estimated_tokens)
+            cost = self._estimate_cost(model_info["name"], estimated_tokens)
 
-            comparisons.append({
-                'model': model_info['name'],
-                'speed': model_info['speed'],
-                'estimated_cost': cost,
-                'use_cases': model_info['use_cases']
-            })
+            comparisons.append(
+                {
+                    "model": model_info["name"],
+                    "speed": model_info["speed"],
+                    "estimated_cost": cost,
+                    "use_cases": model_info["use_cases"],
+                }
+            )
 
-        return sorted(comparisons, key=lambda x: x['estimated_cost'])
+        return sorted(comparisons, key=lambda x: x["estimated_cost"])
 
 
 def quick_select(task: str) -> str:
@@ -410,7 +474,7 @@ if __name__ == "__main__":
         "Design a scalable architecture for the video processing pipeline",
         "Convert this JSON to CSV format",
         "Create a comprehensive strategy for migrating to microservices",
-        "Quick fix: add error handling to the function"
+        "Quick fix: add error handling to the function",
     ]
 
     print("=" * 80)

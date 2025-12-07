@@ -32,7 +32,7 @@ def sample_tasks():
             "Design scalable microservices architecture",
             "Plan comprehensive migration strategy",
             "Architect multi-region deployment",
-        ]
+        ],
     }
 
 
@@ -58,12 +58,9 @@ def sample_config(temp_dir):
 
     config_file = temp_dir / "config.json"
     config = {
-        "thresholds": {
-            "haiku_max": 30,
-            "sonnet_max": 70
-        },
+        "thresholds": {"haiku_max": 30, "sonnet_max": 70},
         "default_model": "sonnet",
-        "cost_optimization": True
+        "cost_optimization": True,
     }
     config_file.write_text(json.dumps(config, indent=2))
     return config_file
@@ -80,7 +77,7 @@ def mock_analysis():
         reasoning="Test reasoning for mock analysis",
         confidence=0.85,
         estimated_tokens=10000,
-        estimated_cost=0.05
+        estimated_cost=0.05,
     )
 
 
@@ -109,17 +106,18 @@ def token_count(request):
 # Helper functions available to all tests
 def assert_valid_model(model_name):
     """Assert that a model name is valid"""
-    assert model_name in ["haiku", "sonnet", "opus"], \
-        f"Invalid model name: {model_name}"
+    assert model_name in [
+        "haiku",
+        "sonnet",
+        "opus",
+    ], f"Invalid model name: {model_name}"
 
 
 def assert_valid_complexity(score):
     """Assert that a complexity score is valid"""
-    assert 0 <= score <= 100, \
-        f"Complexity score out of range: {score}"
+    assert 0 <= score <= 100, f"Complexity score out of range: {score}"
 
 
 def assert_valid_confidence(confidence):
     """Assert that a confidence value is valid"""
-    assert 0 <= confidence <= 1, \
-        f"Confidence out of range: {confidence}"
+    assert 0 <= confidence <= 1, f"Confidence out of range: {confidence}"

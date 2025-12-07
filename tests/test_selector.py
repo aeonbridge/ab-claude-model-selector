@@ -4,7 +4,6 @@ Tests for Claude Model Selector
 
 import pytest
 from claude_model_selector import (
-    ClaudeModel,
     TaskAnalysis,
     ClaudeModelSelector,
     quick_select,
@@ -155,7 +154,11 @@ class TestComplexityScoring:
     def test_length_affects_complexity(self, selector):
         """Longer descriptions should increase complexity"""
         short_task = "List files"
-        long_task = "List all files in the directory including subdirectories and provide detailed information about each file including size, permissions, and modification dates"
+        long_task = (
+            "List all files in the directory including subdirectories and "
+            "provide detailed information about each file including size, "
+            "permissions, and modification dates"
+        )
 
         short_analysis = selector.analyze_task(short_task)
         long_analysis = selector.analyze_task(long_task)
@@ -354,7 +357,10 @@ class TestConfidence:
     def test_confidence_with_context(self, selector):
         """Context should affect confidence"""
         task = "Optimize"
-        context = "Production system handling 1M requests/day with critical uptime requirements"
+        context = (
+            "Production system handling 1M requests/day with critical "
+            "uptime requirements"
+        )
 
         analysis = selector.analyze_task(task, context)
         assert analysis.confidence > 0
@@ -370,14 +376,9 @@ class TestCustomConfiguration:
         import tempfile
 
         # Create temporary config
-        config = {
-            "thresholds": {
-                "haiku_max": 25,
-                "sonnet_max": 75
-            }
-        }
+        config = {"thresholds": {"haiku_max": 25, "sonnet_max": 75}}
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(config, f)
             config_path = Path(f.name)
 
@@ -391,6 +392,7 @@ class TestCustomConfiguration:
     def test_default_config_when_no_file(self):
         """Test default config is used when file doesn't exist"""
         from pathlib import Path
+
         selector = ClaudeModelSelector(config_path=Path("nonexistent.json"))
         assert selector.config is not None
         assert "haiku_threshold" in selector.config
