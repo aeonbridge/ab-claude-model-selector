@@ -161,7 +161,7 @@ def batch_command(args):
     print("SUMMARY")
     print("=" * 80)
 
-    model_counts = {}
+    model_counts: dict = {}
     for result in results:
         model = result["model"]
         model_counts[model] = model_counts.get(model, 0) + 1
@@ -171,7 +171,7 @@ def batch_command(args):
     print("\nModel Distribution:")
     for model, count in sorted(model_counts.items()):
         percentage = (count / len(tasks)) * 100
-        print(f"  {model.upper():<10} {count:>3} tasks ({percentage:.1f}%)")
+        print(f"  {str(model).upper():<10} {count:>3} tasks ({percentage:.1f}%)")
 
     # Save results if requested
     if args.output:
