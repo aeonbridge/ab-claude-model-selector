@@ -5,7 +5,8 @@
       "Bash(black:*)",
       "Bash(flake8:*)",
       "Bash(mypy:*)",
-      "Bash(pytest:*)"
+      "Bash(pytest:*)",
+      "Bash(tar:*)"
     ],
     "deny": [],
     "ask": []
