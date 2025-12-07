@@ -1,0 +1,10 @@
+# Core requirements (none - pure Python!)
+# The package has zero external dependencies for maximum portability
+
+# Development dependencies (install with: pip install -e ".[dev]")
+# See setup.py [dev] extras for:
+# - pytest
+# - pytest-cov
+# - black
+# - flake8
+# - mypy

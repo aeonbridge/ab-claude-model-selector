@@ -1,0 +1,10 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+include requirements.txt
+recursive-include src/claude_model_selector *.json
+recursive-include docs *.md
+recursive-include examples *.py
+exclude .gitignore
+exclude .github
