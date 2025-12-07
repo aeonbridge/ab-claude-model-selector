@@ -6,7 +6,8 @@
       "Bash(flake8:*)",
       "Bash(mypy:*)",
       "Bash(pytest:*)",
-      "Bash(tar:*)"
+      "Bash(tar:*)",
+      "Bash(gh run view:*)"
     ],
     "deny": [],
     "ask": []
