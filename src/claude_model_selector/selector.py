@@ -74,7 +74,7 @@ class ClaudeModelSelector:
                     'list', 'summarize', 'extract', 'format', 'convert',
                     'read', 'check', 'verify', 'validate', 'count'
                 ],
-                'weight': -20  # Reduces complexity score
+                'weight': -30  # Reduces complexity score
             },
             'sonnet': {
                 'keywords': [
@@ -82,16 +82,17 @@ class ClaudeModelSelector:
                     'write', 'generate', 'build', 'process', 'handle',
                     'parse', 'transform', 'optimize', 'refactor', 'test'
                 ],
-                'weight': 0  # Neutral
+                'weight': 5  # Slight increase for standard tasks
             },
             'opus': {
                 'keywords': [
                     'plan', 'design', 'architect', 'strategy', 'complex',
                     'critical', 'research', 'investigate', 'evaluate',
                     'comprehensive', 'multi-step', 'advanced', 'deep dive',
-                    'trade-off', 'decision', 'compare', 'assess'
+                    'trade-off', 'decision', 'compare', 'assess', 'scalable',
+                    'microservice'
                 ],
-                'weight': 30  # Increases complexity score
+                'weight': 60  # Increases complexity score
             }
         }
 
@@ -102,7 +103,7 @@ class ClaudeModelSelector:
                     r'\bplan\b', r'\bdesign\b', r'\barchitect', r'\bstrateg',
                     r'\broadmap\b', r'\bapproach\b', r'\bmethodology\b'
                 ],
-                'weight': 40
+                'weight': 105
             },
             'coding_complex': {
                 'patterns': [
@@ -110,14 +111,14 @@ class ClaudeModelSelector:
                     r'\brefactor\s+entire\b', r'\bredesign\b',
                     r'\bmigrat(e|ion)\b', r'\bscalability\b'
                 ],
-                'weight': 35
+                'weight': 45
             },
             'research': {
                 'patterns': [
                     r'\bresearch\b', r'\binvestigat\b', r'\banalyz\b.*\bdeep',
                     r'\bcomprehensive\b', r'\bexplor\b.*\boption'
                 ],
-                'weight': 30
+                'weight': 50
             },
             'decision_making': {
                 'patterns': [
@@ -125,7 +126,7 @@ class ClaudeModelSelector:
                     r'\bevaluate\s+option', r'\bdecid\b.*\bbest\b',
                     r'\brecommend\b.*\bstrategy\b'
                 ],
-                'weight': 25
+                'weight': 45
             },
             'simple_task': {
                 'patterns': [
@@ -141,7 +142,13 @@ class ClaudeModelSelector:
         """Load configuration from file or use defaults"""
         if config_path and config_path.exists():
             with open(config_path) as f:
-                return json.load(f)
+                config = json.load(f)
+                # Handle nested thresholds structure
+                if 'thresholds' in config:
+                    thresholds = config['thresholds']
+                    config['haiku_threshold'] = thresholds.get('haiku_max', 30)
+                    config['sonnet_threshold'] = thresholds.get('sonnet_max', 70)
+                return config
         return {
             'haiku_threshold': 30,
             'sonnet_threshold': 70,
@@ -191,7 +198,7 @@ class ClaudeModelSelector:
 
         Higher score = more complex = use better model
         """
-        score = 50.0  # Base score (Sonnet territory)
+        score = 40.0  # Base score
         task_lower = task.lower()
 
         # Check complexity keywords
@@ -212,8 +219,10 @@ class ClaudeModelSelector:
             score += 15
         elif word_count > 50:
             score += 10
-        elif word_count < 10:
+        elif word_count < 5:
             score -= 10
+        elif word_count < 10:
+            score -= 5
 
         # Context adds complexity
         if context:

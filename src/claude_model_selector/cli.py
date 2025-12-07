@@ -83,7 +83,7 @@ def analyze_command(args):
             }
         }
         with open(args.output, 'w') as f:
-            json.dumps(output_data, f, indent=2)
+            json.dump(output_data, f, indent=2)
         print(f"\nAnalysis saved to: {args.output}")
 
 
