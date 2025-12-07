@@ -12,7 +12,7 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from ab.dc.claude_model_selector import ClaudeModelSelector, quick_select
+from claude_model_selector import ClaudeModelSelector, quick_select
 
 
 # Example 1: Basic Task Classification

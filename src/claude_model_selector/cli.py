@@ -13,7 +13,7 @@ from typing import Optional
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from ab.dc.claude_model_selector import ClaudeModelSelector, TaskAnalysis
+from claude_model_selector import ClaudeModelSelector, TaskAnalysis
 
 
 def print_analysis(analysis: TaskAnalysis, verbose: bool = False):
